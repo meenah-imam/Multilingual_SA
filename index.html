@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Naija Multilingual Sentiment Analysis</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    <style>
+        /* ── Reset & Base ── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 50%, #52b788 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: #1a1a2e;
+        }
+
+        /* ── Layout ── */
+        .page-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+            width: 100%;
+            max-width: 860px;
+            overflow: hidden;
+        }
+
+        /* ── Header ── */
+        .card-header {
+            background: linear-gradient(135deg, #1b4332, #40916c);
+            color: #fff;
+            padding: 2.5rem 2rem 2rem;
+            text-align: center;
+        }
+
+        .card-header h1 {
+            font-size: 1.9rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+
+        .card-header p {
+            font-size: 0.95rem;
+            opacity: 0.85;
+        }
+
+        .lang-pills {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .lang-pill {
+            background: rgba(255,255,255,0.18);
+            border: 1px solid rgba(255,255,255,0.35);
+            border-radius: 999px;
+            padding: 0.25rem 0.85rem;
+            font-size: 0.82rem;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+        }
+
+        /* ── Card Body ── */
+        .card-body {
+            padding: 2rem;
+        }
+
+        .section-label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #40916c;
+            margin-bottom: 1rem;
+        }
+
+        /* ── Stats ── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            border-radius: 12px;
+            padding: 1.2rem;
+            text-align: center;
+        }
+
+        .stat-card.negative  { background: #fff5f5; border: 1px solid #fca5a5; }
+        .stat-card.neutral   { background: #fffbeb; border: 1px solid #fcd34d; }
+        .stat-card.positive  { background: #f0fdf4; border: 1px solid #86efac; }
+        .stat-card.total     { background: #f0f9ff; border: 1px solid #7dd3fc; }
+
+        .stat-card .stat-icon { font-size: 1.5rem; margin-bottom: 0.4rem; }
+        .stat-card .stat-name { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #555; }
+        .stat-card .stat-pct  { font-size: 1.6rem; font-weight: 700; line-height: 1.2; color: #1a1a2e; }
+        .stat-card .stat-count{ font-size: 0.82rem; color: #777; margin-top: 0.2rem; }
+
+        /* ── Divider ── */
+        hr.divider {
+            border: none;
+            border-top: 1px solid #e5e7eb;
+            margin: 0 0 2rem;
+        }
+
+        /* ── Prediction Form ── */
+        .predict-form textarea {
+            width: 100%;
+            padding: 0.9rem 1rem;
+            border: 1.5px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 110px;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+
+        .predict-form textarea:focus { border-color: #40916c; }
+
+        .predict-form textarea::placeholder { color: #9ca3af; }
+
+        .predict-form .btn-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 0.75rem;
+        }
+
+        .btn-analyze {
+            background: #2d6a4f;
+            color: #fff;
+            padding: 0.7rem 1.8rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .btn-analyze:hover  { background: #1b4332; }
+        .btn-analyze:active { transform: scale(0.97); }
+        .btn-analyze:disabled { background: #9ca3af; cursor: not-allowed; }
+
+        /* ── Result Box ── */
+        .result-box {
+            display: none;
+            margin-top: 1.25rem;
+            border-radius: 10px;
+            padding: 1.2rem 1.4rem;
+            font-size: 1rem;
+            line-height: 1.6;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .result-box.positive { background: #f0fdf4; border: 1.5px solid #86efac; color: #166534; }
+        .result-box.negative { background: #fff5f5; border: 1.5px solid #fca5a5; color: #991b1b; }
+        .result-box.neutral  { background: #fffbeb; border: 1.5px solid #fcd34d; color: #92400e; }
+
+        .result-box .result-badge {
+            display: inline-block;
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-transform: capitalize;
+        }
+
+        .result-box .result-text {
+            margin-top: 0.4rem;
+            color: #555;
+            font-size: 0.92rem;
+            word-break: break-word;
+        }
+
+        /* ── Spinner ── */
+        .spinner {
+            display: none;
+            width: 20px; height: 20px;
+            border: 3px solid rgba(255,255,255,0.4);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+
+        @keyframes spin   { to { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+        /* ── Footer ── */
+        footer {
+            background: #1b4332;
+            color: rgba(255,255,255,0.75);
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.82rem;
+            letter-spacing: 0.02em;
+        }
+
+        footer strong { color: #d8f3dc; }
+    </style>
+</head>
+<body>
+
+<div class="page-wrapper">
+  <div class="card">
+
+    <!-- Header -->
+    <div class="card-header">
+      <h1>🌍 Naija Multilingual Sentiment Analysis</h1>
+      <p>Fine-tuned XLM-RoBERTa · NaijaSenti Dataset · MIT 800 Capstone Project</p>
+      <div class="lang-pills">
+        <span class="lang-pill">🇳🇬 Hausa</span>
+        <span class="lang-pill">🇳🇬 Igbo</span>
+        <span class="lang-pill">🇳🇬 Yorùbá</span>
+        <span class="lang-pill">🇳🇬 Nigerian Pidgin</span>
+      </div>
+    </div>
+
+    <div class="card-body">
+
+      <!-- Statistics -->
+      <p class="section-label">Training Data — Sentiment Distribution</p>
+      <div class="stats-grid">
+        <div class="stat-card negative">
+          <div class="stat-icon">😠</div>
+          <div class="stat-name">Negative</div>
+          <div class="stat-pct">{{ stats.percentages['0'] if stats else 'N/A' }}%</div>
+          <div class="stat-count">{{ "{:,}".format(stats.counts['0']) if stats else '–' }} samples</div>
+        </div>
+        <div class="stat-card neutral">
+          <div class="stat-icon">😐</div>
+          <div class="stat-name">Neutral</div>
+          <div class="stat-pct">{{ stats.percentages['1'] if stats else 'N/A' }}%</div>
+          <div class="stat-count">{{ "{:,}".format(stats.counts['1']) if stats else '–' }} samples</div>
+        </div>
+        <div class="stat-card positive">
+          <div class="stat-icon">😊</div>
+          <div class="stat-name">Positive</div>
+          <div class="stat-pct">{{ stats.percentages['2'] if stats else 'N/A' }}%</div>
+          <div class="stat-count">{{ "{:,}".format(stats.counts['2']) if stats else '–' }} samples</div>
+        </div>
+        <div class="stat-card total">
+          <div class="stat-icon">📊</div>
+          <div class="stat-name">Total</div>
+          <div class="stat-pct">{{ "{:,}".format(stats.total) if stats else 'N/A' }}</div>
+          <div class="stat-count">all languages</div>
+        </div>
+      </div>
+
+      <hr class="divider" />
+
+      <!-- Prediction -->
+      <p class="section-label">Predict Sentiment</p>
+      <div class="predict-form">
+        <textarea
+          id="text_input"
+          placeholder="Enter text in Hausa, Igbo, Yorùbá, Nigerian Pidgin or English …"
+        ></textarea>
+        <div class="btn-row">
+          <button class="btn-analyze" id="analyzeBtn" onclick="analyzeSentiment()">
+            Analyze
+            <span class="spinner" id="spinner"></span>
+          </button>
+        </div>
+        <div class="result-box" id="resultBox">
+          <div class="result-badge" id="resultBadge"></div>
+          <div class="result-text" id="resultText"></div>
+        </div>
+      </div>
+
+    </div><!-- /card-body -->
+  </div><!-- /card -->
+</div><!-- /page-wrapper -->
+
+<footer>
+  <strong>Iconic Open University</strong> · MIT 800 Capstone Project ·
+  Supervisor: Dr. Amina Imam Abubakar
+</footer>
+
+<script>
+  const EMOJI = { positive: '😊', negative: '😠', neutral: '😐' };
+
+  async function analyzeSentiment() {
+    const text = document.getElementById('text_input').value.trim();
+    if (!text) { alert('Please enter some text before analyzing.'); return; }
+
+    const btn     = document.getElementById('analyzeBtn');
+    const spinner = document.getElementById('spinner');
+    const box     = document.getElementById('resultBox');
+
+    btn.disabled       = true;
+    spinner.style.display = 'inline-block';
+    box.style.display  = 'none';
+    box.className      = 'result-box';
+
+    try {
+      const res  = await fetch('/predict', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ text }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || 'Server error');
+
+      const s = data.sentiment;
+      document.getElementById('resultBadge').textContent =
+        `${EMOJI[s] || ''} ${s.charAt(0).toUpperCase() + s.slice(1)}`;
+      document.getElementById('resultText').textContent  =
+        `"${data.text}"`;
+
+      box.classList.add(s);
+      box.style.display = 'block';
+
+    } catch (err) {
+      alert('Error: ' + err.message);
+    } finally {
+      btn.disabled          = false;
+      spinner.style.display = 'none';
+    }
+  }
+
+  // Allow Enter key (Ctrl+Enter) to submit
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('text_input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) analyzeSentiment();
+    });
+  });
+</script>
+
+</body>
+</html>

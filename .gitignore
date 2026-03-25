@@ -1,0 +1,50 @@
+# ── Python ──────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg
+*.egg-info/
+dist/
+build/
+*.whl
+.eggs/
+
+# ── Virtual environments ─────────────────────
+venv/
+.venv/
+env/
+.env/
+
+# ── Jupyter notebooks ────────────────────────
+.ipynb_checkpoints/
+
+# ── Model & training artefacts ───────────────
+naijasenti_model/
+results/
+logs/
+runs/
+*.bin
+*.safetensors
+*.pt
+*.ckpt
+
+# ── Dataset (cloned at runtime) ──────────────
+NaijaSenti/
+
+# ── OS & editor ──────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ── Environment files ─────────────────────────
+.env
+.env.*
+
+# ── Coverage / testing ───────────────────────
+.coverage
+htmlcov/
+.pytest_cache/
