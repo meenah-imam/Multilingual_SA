@@ -31,6 +31,7 @@ This project develops a **multilingual sentiment analysis system** for Nigerian 
 3. **Fine-tuning** — Transfer learning with Hugging Face `Trainer` API; 80/20 train/test split
 4. **Evaluation** — Accuracy, Precision, Recall, and F1-Score (weighted)
 5. **Deployment** — Gradio web application with real-time prediction
+6. **Web Based Application** —  https://huggingface.co/spaces/Meenahimam/naija-multilingual-feedback
 
 ---
 
