@@ -24,7 +24,7 @@ This project develops a **multilingual sentiment analysis system** for Nigerian 
 
 ---
 
-## 🔬 Methodology
+##  Methodology
 
 1. **Dataset** — NaijaSenti: A large human-annotated Twitter sentiment corpus for Hausa, Igbo, Yorùbá, and Nigerian Pidgin (Muhammad et al., 2022)
 2. **Pretrained Model** — [`cardiffnlp/twitter-xlm-roberta-base-sentiment`](https://huggingface.co/cardiffnlp/twitter-xlm-roberta-base-sentiment) (XLM-RoBERTa fine-tuned on multilingual Twitter data)
