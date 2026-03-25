@@ -1,0 +1,16 @@
+# Core ML & NLP
+torch>=2.0.0
+transformers>=4.38.0
+datasets>=2.18.0
+scikit-learn>=1.4.0
+
+# Data handling
+pandas>=2.0.0
+
+# Web framework
+flask>=3.0.0
+
+# Utilities
+accelerate>=0.28.0
+sentencepiece>=0.2.0
+protobuf>=4.25.0
